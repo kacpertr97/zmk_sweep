@@ -10,7 +10,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install yaml2json
         run: python3 -m pip install remarshal
       - id: set-matrix
@@ -22,7 +22,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: zmkfirmware/zmk-build-arm:2.5
+      image: zmkfirmware/zmk-build-arm:3.5
     needs: matrix
     name: Build
     strategy:
@@ -32,22 +32,18 @@ jobs:
       - name: Prepare variables
         id: variables
         run: |
-          if [ -n "${{ matrix.shield }}" ]; then
-            EXTRA_CMAKE_ARGS="-DSHIELD=${{ matrix.shield }}"
-            ARTIFACT_NAME="${{ matrix.shield }}-${{ matrix.board }}-zmk"
-            DISPLAY_NAME="${{ matrix.shield }} - ${{ matrix.board }}"
-          else
-            EXTRA_CMAKE_ARGS=
-            DISPLAY_NAME="${{ matrix.board }}"
-            ARTIFACT_NAME="${{ matrix.board }}-zmk"
-          fi
-          echo ::set-output name=extra-cmake-args::${EXTRA_CMAKE_ARGS}
-          echo ::set-output name=artifact-name::${ARTIFACT_NAME}
-          echo ::set-output name=display-name::${DISPLAY_NAME}
+          SHIELD="${{ matrix.shield }}"
+          BOARD="${{ matrix.board }}"
+          EXTRA_CMAKE_ARGS="-DSHIELD=$SHIELD"
+          ARTIFACT_NAME="$SHIELD-$BOARD-zmk"
+          DISPLAY_NAME="$SHIELD - $BOARD"
+          echo "extra-cmake-args=$EXTRA_CMAKE_ARGS" >> $GITHUB_OUTPUT
+          echo "artifact-name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+          echo "display-name=$DISPLAY_NAME" >> $GITHUB_OUTPUT
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Cache west modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         env:
           cache-name: cache-zephyr-modules
         with:
@@ -89,7 +85,7 @@ jobs:
             cp build/zephyr/zmk.hex "build/artifacts/${{ steps.variables.outputs.artifact-name }}.hex"
           fi
       - name: Archive (${{ steps.variables.outputs.display-name }})
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: firmware
-          path: build/artifacts
+          name: ${{ steps.variables.outputs.artifact-name }}
+          path: build/artifacts     
