@@ -1,94 +1,145 @@
+
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/outputs.h>
+#include <dt-bindings/zmk/pointing.h>
 
-// adjust mod-tap
-&mt {
-    flavor = "tap-preferred";
-    tapping_term_ms = <300>;
-};
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 1800  // default: 600
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 30    // default: 10
+#define U_MOUSE_MOVE_EXPONENT 0
+#define U_MOUSE_MOVE_TIME 0
+#define U_MOUSE_MOVE_DELAY 0
+#define DEF 0
+#define NAV 1
+#define SYM 2
+#define ADJ 3
+#define EXTRA 4
 
 / {
-
     combos {
         compatible = "zmk,combos";
-        combo_esc {
-            timeout-ms = <50>;
-            key-positions = <1 2>;
-            bindings = <&kp ESC>;
-         };
-        combo_bspc {
+        combo_qmark {
             timeout-ms = <50>;
             key-positions = <7 8>;
-            bindings = <&kp BSPC>;
+            bindings = <&kp QMARK>;
         };
     };
 
+    behaviors {
+        hm: homerow_mods {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HOMEROW_MODS";
+            #binding-cells = <2>;
+            tapping-term-ms = <220>;
+            require-prior-idle-ms = <125>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+        };
 
-    conditional_layers {
-        compatible = "zmk,conditional-layers";
-        cond_layer_mgmt {
-            if-layers = <1 4>;
-            then-layer = <5>;
+        para: para {
+            compatible = "zmk,behavior-tap-dance";
+            label = "PARA";
+            #binding-cells = <0>;
+            bindings = <&kp LEFT_PARENTHESIS>, <&kp RIGHT_PARENTHESIS>;
+        };
+
+        caps: caps {
+            compatible = "zmk,behavior-caps-word";
+            label = "CAPS";
+            #binding-cells = <0>;
+            continue-list = <MINUS BACKSPACE>;
+        };
+
+        paraless: paraless {
+            compatible = "zmk,behavior-mod-morph";
+            label = "PARALESS";
+            bindings = <&kp LEFT_PARENTHESIS>, <&kp LESS_THAN>;
+            #binding-cells = <0>;
+            mods = <(MOD_LSFT)>;
+        };
+
+        paragreat: paragreat {
+            compatible = "zmk,behavior-mod-morph";
+            label = "PARAGREAT";
+            bindings = <&kp RIGHT_PARENTHESIS>, <&kp GREATER_THAN>;
+            #binding-cells = <0>;
+            mods = <(MOD_LSFT)>;
+        };
+
+        lht: longer_hold_tap {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <220>;
+            require-prior-idle-ms = <125>;
+            bindings = <&kp>, <&kp>;
         };
     };
-
 
     keymap {
         compatible = "zmk,keymap";
 
-        base_layer {
-        bindings = <
-        &kp Q              &kp W              &kp F              &kp P              &kp B              &kp J              &kp L              &kp U              &kp Y              &kp APOS
-        &mt LGUI A         &mt LALT R         &mt LCTRL S        &mt LSHFT T        &kp G              &kp M              &mt LSHFT N        &mt LCTRL E        &mt LALT I         &mt LGUI O
-        &kp Z              &kp X              &kp C              &kp D              &kp V              &kp K              &kp H              &kp COMMA          &kp PERIOD         &kp SLASH
-                                                                 &lt 1 ENTER        &lt 2 BSPC         &lt 3 SPACE        &lt 4 TAB
-        >;
+        DEF {
+            display-name = "Base";
+            bindings = <
+                &kp Q        &kp W        &kp E           &kp R       &kp T                               &kp Y              &kp U            &kp I            &kp O                &kp P
+                &hm LSHFT A  &hm LCTRL S  &hm LEFT_ALT D  &hm LGUI F  &kp G                               &kp H              &hm RIGHT_GUI J  &hm RIGHT_ALT K  &hm RIGHT_CONTROL L  &hm RIGHT_SHIFT SEMI
+                &kp Z        &kp X        &kp C           &kp V       &kp B                               &kp N              &kp M            &kp COMMA        &kp DOT              &kp BACKSPACE
+                                                  &mo 1       &lht LS(LA(LC(RIGHT_GUI))) SPACE    &lht ESCAPE ENTER  &mo 2          
+            >;
         };
 
-        symb_layer {
-        bindings = <
-        &none              &none              &none              &none              &none              &kp LBRC           &kp AMPS           &kp ASTRK          &kp LPAR           &kp RBRC
-        &kp LGUI           &kp LALT           &kp LCTRL          &kp LSHFT          &kp ESC            &kp PLUS           &kp DLLR           &kp PRCNT          &kp CARET          &kp COLON
-        &none              &kp RALT           &none              &kp DEL            &none              &kp PIPE           &kp EXCL           &kp AT             &kp HASH           &kp TILDE
-                                                                 &none              &none              &kp UNDER          &kp RPAR
-        >;
+        NAV {
+            display-name = "Nav";
+            bindings = <
+                &none           &none             &mmv MOVE_UP    &msc SCRL_RIGHT  &msc SCRL_LEFT    &none           &kp RIGHT_GUI  &kp RIGHT_ALT  &kp RCTRL        &kp RIGHT_SHIFT
+                &none           &mmv MOVE_LEFT    &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &msc SCRL_DOWN    &kp LEFT_ARROW  &kp DOWN       &kp UP_ARROW   &kp RIGHT_ARROW  &none
+                &kp LEFT_SHIFT  &kp LEFT_CONTROL  &kp RIGHT_ALT   &kp RIGHT_GUI    &msc SCRL_UP      &mkp LCLK       &mkp RCLK      &none          &none            &trans
+                                              &trans           &trans            &trans          &trans      
+            >;
         };
 
-        numb_layer {
-        bindings = <
-        &none              &none              &none              &none              &none              &kp LBKT           &kp N7             &kp N8             &kp N9             &kp RBKT
-        &kp LGUI           &kp LALT           &kp LCTRL          &kp LSHFT          &kp COMMA          &kp EQUAL          &kp N4             &kp N5             &kp N6             &kp SCLN
-        &none              &kp RALT           &none              &kp PERIOD         &none              &kp BSLH           &kp N1             &kp N2             &kp N3             &kp GRAVE
-                                                                 &none              &none              &kp MINUS          &kp N0
-        >;
+        SYM {
+            display-name = "Symbols";
+            bindings = <
+                &kp EXCL                    &kp AT                 &kp HASH                  &kp DLLR                  &kp PRCNT          &kp CARET  &kp AMPS                &kp LEFT_PARENTHESIS        &kp RIGHT_PARENTHESIS    &kp STAR
+                &hm LEFT_SHIFT KP_NUMBER_1  &hm LCTRL KP_NUMBER_2  &hm LEFT_ALT KP_NUMBER_3  &hm LEFT_GUI KP_NUMBER_4  &kp KP_NUMBER_5    &kp MINUS  &hm RIGHT_GUI KP_EQUAL  &hm RIGHT_ALT LEFT_BRACKET  &hm RCTRL RIGHT_BRACKET  &hm RIGHT_SHIFT BSLH
+                &kp KP_NUMBER_6             &kp KP_NUMBER_7        &kp KP_NUMBER_8           &kp KP_NUMBER_9           &kp KP_NUMBER_0    &kp UNDER  &kp PLUS                &kp LBRC                    &kp RBRC                 &kp PIPE
+                                                                      &trans                    &trans             &trans     &trans                  
+            >;
         };
 
-        navg_layer {
-        bindings = <
-        &kp PG_UP          &kp HOME           &kp UP             &kp END            &kp INS            &none              &none              &none               &none              &none
-        &kp PG_DN          &kp LEFT           &kp DOWN           &kp RIGHT          &kp CAPS           &kp K_APP          &kp LSHFT          &kp LCTRL           &kp LALT           &kp LGUI
-        &kp LC(Z)          &kp LC(X)          &kp LC(C)          &kp LC(V)          &kp LC(Y)          &none              &kp LS(LG(S))      &none               &kp RALT           &none
-                                                                 &kp ENTER          &kp BSPC           &none              &none
-        >;
+        ADJ {
+            display-name = "System";
+            bindings = <
+                &kp F1        &kp F2        &kp F3        &kp F4      &kp F5            &kp F6  &kp F7  &kp F8  &kp F9  &kp F10
+                &kp F11       &kp F12       &trans        &trans      &studio_unlock    &trans  &trans  &trans  &trans  &trans
+                &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_CLR  &bt BT_CLR_ALL    &trans  &trans  &trans  &trans  &bootloader
+                                               &trans      &trans      &trans  &trans
+            >;
         };
 
-        funt_layer {
-        bindings = <
-        &kp F12            &kp F7             &kp F8             &kp F9             &kp PSCRN          &none             &none               &none               &none              &none
-        &kp F11            &kp F4             &kp F5             &kp F6             &kp SLCK           &kp K_APP         &kp LSHFT           &kp LCTRL           &kp LALT           &kp LGUI
-        &kp F10            &kp F1             &kp F2             &kp F3             &kp PAUSE_BREAK    &none             &kp K_MUTE          &none               &kp RALT           &none
-                                                                 &kp ENTER          &kp BSPC           &none             &none
-        >;
+        EXTRA {
+            display-name = "extra";
+            bindings = <
+                &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &trans
+                &trans  &trans  &trans  &trans  &trans    &trans  &trans  &trans  &trans  &bootloader
+                                        &trans  &trans    &trans  &trans 
+            >;
+                                
         };
-        
-        mgmt_layer {
-        bindings = <
-        &bt BT_CLR         &none              &none              &none              &none              &none             &none               &bootloader         &none              &none
-        &none              &bt BT_PRV         &none              &bt BT_NXT         &none              &none             &none               &none               &none              &none
-        &none              &none              &none              &none              &none              &none             &none               &none               &none              &none
-                                                                 &none              &none              &none             &none
-        >;
+    };
+
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+
+        l3 {
+            if-layers = <1 2>;
+            then-layer = <3>;
         };
-    };    
+    };
 };
+
+
