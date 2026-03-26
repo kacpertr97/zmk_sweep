@@ -124,7 +124,7 @@
         NAV {
             display-name = "Nav";
             bindings = <
-                &none           &none             &mmv MOVE_UP    &msc SCRL_RIGHT  &msc SCRL_LEFT    &none           &kp RIGHT_GUI  &kp RIGHT_ALT  &kp RCTRL        &kp RIGHT_SHIFT
+                &none           &none             &mmv MOVE_UP    &msc SCRL_RIGHT  &msc SCRL_LEFT    &mkp MB3           &kp RIGHT_GUI  &kp RIGHT_ALT  &kp RCTRL        &kp RIGHT_SHIFT
                 &none           &mmv MOVE_LEFT    &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &msc SCRL_DOWN    &kp LEFT_ARROW  &kp DOWN       &kp UP_ARROW   &kp RIGHT_ARROW  &none
                 &kp LEFT_SHIFT  &kp LEFT_CONTROL  &kp RIGHT_ALT   &kp RIGHT_GUI    &msc SCRL_UP      &mkp LCLK       &mkp RCLK      &none          &none            &trans
                                               &trans           &trans            &trans          &trans      
